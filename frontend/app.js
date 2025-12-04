@@ -1,3 +1,6 @@
+// 导入marked库
+import { marked } from 'marked';
+
 // 全局变量声明
 let form;
 let resultBox;
@@ -140,9 +143,7 @@ function bindEventListeners() {
     currentThought = '';
     
     // 确保历史消息区域（父容器）可见
-    console.log('历史消息区域隐藏状态:', historyMessagesSection.classList.contains('hidden'));
     historyMessagesSection.classList.remove('hidden');
-    console.log('历史消息区域隐藏状态（移除后）:', historyMessagesSection.classList.contains('hidden'));
     
     // 创建一个新的消息元素，与历史消息卡片结构一致
     const newMessageElement = document.createElement('div');
@@ -171,11 +172,6 @@ function bindEventListeners() {
     // 更新全局引用，确保consumeEventStream使用正确的元素
     window.currentThoughtBox = thoughtBox;
     window.currentResultBox = resultBox;
-    
-    console.log('=== 创建新消息卡片 ===');
-    console.log('newMessageElement:', newMessageElement);
-    console.log('thoughtBox:', thoughtBox);
-    console.log('resultBox:', resultBox);
     
     // 自动滚动到最新内容
     const contentScroll = document.querySelector('.content-scroll');
@@ -503,7 +499,6 @@ async function fetchHistory() {
     historyList.innerHTML = '<li>请登录后查看历史</li>';
     return;
   }
-  console.log('fetchHistory', state.token, state.user);
   try {
     const res = await fetch(HISTORY_URL, {
       headers: {
@@ -804,9 +799,6 @@ async function handleAuth(action, formData) {
 }
 
 async function consumeEventStream(response) {
-  console.log('=== 开始处理事件流 ===');
-  console.log('response:', response);
-  console.log('response.body:', response.body);
   
   if (!response.body) {
     throw new Error('浏览器不支持可读流');
@@ -822,30 +814,23 @@ async function consumeEventStream(response) {
   const thoughtBox = window.currentThoughtBox || document.getElementById('current-thought-box');
   const resultBox = window.currentResultBox || document.getElementById('current-result-box');
   const contentScroll = document.querySelector('.content-scroll');
-  
-  console.log('consumeEventStream - thoughtBox:', thoughtBox);
-  console.log('consumeEventStream - resultBox:', resultBox);
 
   while (true) {
     const { done, value } = await reader.read();
-    console.log('事件流读取结果:', { done, value: value ? value.length : 0 });
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
     const events = buffer.split('\n\n');
     buffer = events.pop() || '';
-    console.log('解析到的事件数量:', events.length);
 
     for (const event of events) {
       const lines = event.split('\n');
       const dataLine = lines.find(line => line.startsWith('data:'));
       if (!dataLine) {
-        console.log('跳过非data行:', event);
         continue;
       }
 
       try {
         const payload = JSON.parse(dataLine.slice(5).trim());
-        console.log('解析到的payload:', payload);
         if (payload.type === 'chunk') {
             // 更新思考过程
             if (payload.thinking) {
@@ -854,7 +839,6 @@ async function consumeEventStream(response) {
               currentThought = thinkingText;
               thoughtBox.innerHTML = marked.parse(thinkingText);
               thoughtBox.scrollTop = thoughtBox.scrollHeight;
-              console.log('更新思考过程:', payload.thinking);
             }
             
             // 更新结果
@@ -863,7 +847,6 @@ async function consumeEventStream(response) {
               currentResult = finalText;
               resultBox.innerHTML = marked.parse(finalText);
               resultBox.scrollTop = resultBox.scrollHeight;
-              console.log('更新结果:', payload.text);
             }
             
             // 只有当用户没有手动向上滚动时，才自动滚动到最新内容
@@ -871,7 +854,6 @@ async function consumeEventStream(response) {
               contentScroll.scrollTop = contentScroll.scrollHeight;
             }
           } else if (payload.type === 'done') {
-            console.log('事件流结束:', payload);
             let resultContent;
             if (payload.total_duration_ms) {
               const seconds = (payload.total_duration_ms / 1000).toFixed(2);

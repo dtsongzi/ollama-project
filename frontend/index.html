@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地大模型查询</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <div class="main-container">
+        <!-- 左侧边栏 -->
+        <aside class="sidebar">
+          <div class="sidebar-content">
+            <!-- 账号信息 -->
+            <section class="card" id="auth-panel">
+              <h2>账号</h2>
+              <p id="auth-status">未登录</p>
+              <div id="auth-tabs" class="auth-tabs">
+                <button type="button" class="auth-tab active" data-mode="login">登录</button>
+                <button type="button" class="auth-tab" data-mode="register">注册</button>
+              </div>
+
+              <form id="login-form" class="auth-form">
+                <div class="auth-grid">
+                  <label>
+                    邮箱
+                    <input type="email" name="email" id="login-email" placeholder="name@example.com" autocomplete="username" />
+                  </label>
+                  <label>
+                    密码
+                    <input type="password" name="password" id="login-password" placeholder="请输入密码" autocomplete="current-password" />
+                  </label>
+                </div>
+                <div class="actions">
+                  <button type="submit">登录</button>
+                </div>
+              </form>
+
+              <form id="register-form" class="auth-form hidden">
+                <div class="auth-grid">
+                  <label>
+                    邮箱
+                    <input type="email" name="email" id="register-email" placeholder="name@example.com" autocomplete="username" />
+                  </label>
+                  <label>
+                    密码
+                    <input type="password" name="password" id="register-password" placeholder="至少6位" autocomplete="new-password" />
+                  </label>
+                  <label>
+                    确认密码
+                    <input type="password" name="confirmPassword" id="register-confirm" placeholder="再次输入密码" autocomplete="new-password" />
+                  </label>
+                </div>
+                <div class="actions">
+                  <button type="submit">注册</button>
+                </div>
+              </form>
+
+              <button type="button" id="logout-btn" class="ghost full-width hidden" disabled>退出登录</button>
+            </section>
+
+            <!-- 历史记录 -->
+            <section class="history card requires-auth hidden">
+              <div class="history-header">
+                <h2>历史记录</h2>
+                <button type="button" id="refresh-history-btn">刷新</button>
+              </div>
+              <ul id="history-list">
+                <li>尚无记录</li>
+              </ul>
+            </section>
+          </div>
+        </aside>
+
+        <!-- 右侧主体区域 -->
+        <main class="content">
+          <div class="content-scroll">
+            <header class="hero">
+              <h1>本地查询助手</h1>
+              <p>连接本机大模型能力，支持文字与文件上下文，并可记录多模型历史。</p>
+            </header>
+            <div id="locked-hint" class="locked-hint hidden">请先登录以访问大模型询问功能</div>
+
+            <!-- 历史消息和当前查询 -->
+            <section class="history-messages requires-auth hidden">
+              <!-- 历史消息容器 -->
+              <div id="history-messages-container"></div>
+            </section>
+          </div>
+
+          <!-- 提问区域 - 固定在右侧底部 -->
+          <section class="query-section requires-auth hidden">
+            <form id="query-form">
+              <textarea name="prompt" rows="4" placeholder="请输入问题"></textarea>
+              <div class="actions">
+                <div class="model-selector-wrapper">
+                  <label for="model-select">模型</label>
+                  <select name="model" id="model-select">
+                    <option value="deepseek-r1:8b">deepseek-r1:8b</option>
+                  </select>
+                </div>
+                <div class="file-upload-wrapper">
+                  <label for="file-input">附件</label>
+                  <input type="file" name="files" id="file-input" multiple />
+                  <button type="button" id="clear-files-btn">清除附件</button>
+                </div>
+                <button type="submit" id="submit-btn">发送</button>
+                <button type="button" id="cancel-btn">清空消息</button>
+                <button type="button" id="abort-btn" class="abort-btn hidden"></button>
+              </div>
+            </form>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+

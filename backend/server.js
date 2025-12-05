@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import fetch from 'node-fetch';
+// 使用Node.js内置的fetch API，避免node-fetch的兼容性问题
+// import fetch from 'node-fetch';
 import xlsx from 'xlsx';
 import mammoth from 'mammoth';
 import bcrypt from 'bcryptjs';
